@@ -80,6 +80,28 @@ def inference_pipeline():
     pass
 
 
+def twitter(twitter_id):
+    import tweepy
+    user_tweets=[]
+    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_token, access_token_secret)
+
+    api = tweepy.API(auth)
+
+    public_tweets = api.home_timeline()
+    #for tweet in public_tweets:
+        #user_tweets.append(tweet.text)
+    user_tweets = [tweet.text for tweet in public_tweets]
+        
+    user = api.get_user('twitter')
+    user_screen_name = user.screen_name
+    user_followers_count = user.followers_count
+    #for friend in user.friends():
+       #print(friend.screen_name)
+    user_friends_screen_name = [friend.screen_name for friend in user.friends()]
+    
+    return 
+
 
 
 if __name__ == '__main__':
