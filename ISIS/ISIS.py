@@ -102,6 +102,20 @@ def twitter(twitter_id):
     
     return 
 
+def https_python_server():
+    import http.server
+    import socketserver
+
+    PORT = 8000
+
+    Handler = http.server.SimpleHTTPRequestHandler
+
+    with socketserver.TCPServer(("", PORT), Handler) as httpd:
+        print("serving at port", PORT)
+        httpd.serve_forever()
+       
+    #to invoke server-run command: python -m http.server 8000
+
 
 
 if __name__ == '__main__':
