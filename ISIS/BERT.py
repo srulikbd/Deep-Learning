@@ -136,26 +136,26 @@ def standard_classification_pipeline(df):
 
     # df_sampled = training_sampling(df, df['label'].drop_duplicates().tolist(), [250,250,250,250,250,250,250,250,250,250,250,250,250,250])
     df = df[df['label'] != 'nan']
-    counter(df)
+    # counter(df)
     # df_sampled = df
     # df_sampled = df
 
     # df_post_clean = [doc for doc in df_sampled['post']]
-    df_post_clean = [clean_text(doc) for doc in df['post']]
+    df_post_clean = [clean_text(doc) for doc in df['tweet']]
     # df_post_clean = [clean_text(doc) for doc in df_unduplicate['post']]
 
     df_post_clean_to_excel = pd.DataFrame()
-    df_post_clean_to_excel['post'] = df_post_clean
+    df_post_clean_to_excel['tweet'] = df_post_clean
     df_post_clean_to_excel['label'] = df['label']
     # df_post_clean_to_excel.drop_duplicates(subset=['post clean'], inplace=True)
-    df_post_clean = df_post_clean_to_excel['post'].tolist()
+    df_post_clean = df_post_clean_to_excel['tweet'].tolist()
     # df_post_clean_to_excel.to_excel('post clean.xlsx')
 
     # x_train = df['post'].tolist()
     # y_train = df['label'].tolist()
-    x_test = df_test['post'].tolist()
-    y_test = df_test['label'].tolist()
-    y_test = [str(y) for y in y_test]
+    # x_test = df_test['tweet'].tolist()
+    # y_test = df_test['label'].tolist()
+    # y_test = [str(y) for y in y_test]
 
     # x_train, x_val, y_train, y_val = train_test_split(df_post_clean, [labels_dic[label] for label in df_sampled['label'].tolist()], test_size=0.2, shuffle=False)
     # df_label_dic = [labels_dic[y] for y in df['label'].tolist()]
@@ -179,13 +179,14 @@ def standard_classification_pipeline(df):
 
     # class_names = [label for label in list(set(y_train))]
     # class_names = list(set(y_train))
-    MODEL_NAME = 'distilbert-base-multilingual-cased'
+    MODEL_NAME = 'distilbert-base-multilingual-cased' #distilled version for faster ttraining and inference
+    # MODEL_NAME = 'bert-base-multilingual-cased' #for better results
 
-    class_names = list(set(df['label'].tolist()))
-    class_names = [str(cls) for cls in class_names]
-    class_names = list(set(class_names))
-    class_names.sort()
-    t = text.Transformer(MODEL_NAME, maxlen=50, class_names=class_names)
+    # class_names = list(set(df['label'].tolist()))
+    # class_names = [str(cls) for cls in class_names]
+    # class_names = list(set(class_names))
+    # class_names.sort()
+    t = text.Transformer(MODEL_NAME, maxlen=50)#, class_names=class_names)
     print(t.get_classes())
     # classes = t.get_classes()
     # classes = [str(cls) for cls in classes]
@@ -196,7 +197,7 @@ def standard_classification_pipeline(df):
     learner = ktrain.get_learner(model, train_data=trn, val_data=val, batch_size=8)
     # learner.fit_onecycle(5e-5, epochs=epochs, class_weight=class_weight)
     # learner.fit_onecycle(5e-5, epochs=epochs)
-    predictor = ktrain.load_predictor(r'C:\Users\user\srulik\Heavy Files\Shivat_Zion_Models\Arabic\antisemite training 3-new as doubled-no legitimate critics')
+    # predictor = ktrain.load_predictor(r'C:\Users\user\srulik\Heavy Files\Shivat_Zion_Models\Arabic\antisemite training 3-new as doubled-no legitimate critics')
 
     # print('train number of class 1: ' + str(y_train.sum()))
     # print('train number of class 0: ' + str(len(y_train)-y_train.sum()))
@@ -207,21 +208,15 @@ def standard_classification_pipeline(df):
     # print_results()
 
     # predictor = ktrain.get_predictor(learner.model, preproc=t)
-    # predictor.save(save_path)
+    predictor.save(save_path)
 
 
-    # print('training classification report:')
-    # classification_report_print(x_train, y_train, 'training', class_names, predictor, labels_dic_names, t)
-    # print('\nvalidation classification report:')
-    # classification_report_print(x_val, y_val, 'validation', class_names, predictor, labels_dic_names, t)
-    print('\ntest classification report:')
-    classification_report_print(x_test, y_test, 'test', class_names, predictor, labels_dic_names, t)
-
-
-
-if __name__ == '__main__':
+    print('training classification report:')
+    classification_report_print(x_train, y_train, 'training', class_names, predictor, labels_dic_names, t)
+    print('\nvalidation classification report:')
+    classification_report_print(x_val, y_val, 'validation', class_names, predictor, labels_dic_names, t)
+    # print('\ntest classification report:')
+    # classification_report_print(x_test, y_test, 'test', class_names, predictor, labels_dic_names, t)
 
 
 
-
-    standard_classification_pipeline(df)
