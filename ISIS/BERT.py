@@ -219,11 +219,9 @@ def standard_classification_pipeline(df):
 
 
 
-
-
-    if __name__ == '__main__':
+if __name__ == '__main__':
 
 
 
 
-        standard_classification_pipeline(df)
+    standard_classification_pipeline(df)
