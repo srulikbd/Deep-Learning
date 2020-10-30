@@ -4,21 +4,42 @@ import pandas as pd
 from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier, ExtraTreesClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegressionCV
-from BERT import standard_classification_pipeline
+from BERT import standard_classification_pipeline, predict_test_threshold
+from features import build_user_feature_matrix
 
 
 
 def configuration():
-    pass
+    predictor = ktrain.load_predictor(r'C:\Users\user\srulik\Heavy Files\Shivat_Zion_Models\Arabic\antisemite training 3-new as doubled-no legitimate critics')
+
+    return predictor
 
 
 def load_data():
     isis_data = pd.read_excel(r'.\tweets_isis_all.xlsx')
     random_data = pd.read_excel(r'.\tweets_random_all.xlsx')
-    tweets_only_labeled = pd.read_excel(r'.\tweets_only_labeled.xlsx')
+    tweets_only_labeled = pd.read_excel(r'.\tweets_only_labeled_small_sample.xlsx')
+    tweets_only_labeled = pd.read_excel(r'.\tweets_labeled_ISIS_keyword.xlsx')
     return tweets_only_labeled, isis_data, random_data
 
-def preprocessing():
+def aggragate_user_tweets(users_name, tweets): # the data is already orderd by username in the excel file
+    users_tweets = []
+    current_user_tweets=[]
+    current_user = users_name[0]
+
+    for i in range(len(tweets)):
+        current_user_tweets.append(tweets[i])
+        if(current_user!=users_name[i+1]):
+            users_tweets.append(current_user_tweets)
+            current_user_tweets=[]
+            current_user = users_name[i+1]
+
+    return users_tweets
+
+
+
+
+
     pass
 
 def features_creation(isis_data):
@@ -40,7 +61,7 @@ def train_BERT_description(isis_data, random_Data):
 
 
 
-def train_classifiers():
+def train_classifiers(X, y):
     clf = DecisionTreeClassifier(max_depth=None, min_samples_split=2)
     scores = cross_val_score(clf, X, y, cv=5)
     DecisionTreeClassifier_mean_scores = scores.mean()
@@ -72,55 +93,33 @@ def validation():
 
 def predict():
     pass
+
+
+
 def train_pipeline():
     tweets_only_labeled, isis_data, random_data = load_data()
     standard_classification_pipeline(tweets_only_labeled)
+    users_feature_mat=[]
+    users_names = isis_data['username'].tolist()
+    users_tweets = aggragate_user_tweets(users_names, isis_data['tweets'].tolist())
+    predict_test_threshold(tweets_only_labeled, predictor)
+    for i in range(len(users_names)):
+        user_feature_vector = build_user_feature_matrix()
+        users_feature_mat.append(user_feature_vector)
+
+    train_classifiers(users_feature_mat, users_labels)
 
 def inference_pipeline():
     pass
 
 
-def twitter(twitter_id):
-    import tweepy
-    user_tweets=[]
-    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-    auth.set_access_token(access_token, access_token_secret)
-
-    api = tweepy.API(auth)
-
-    public_tweets = api.home_timeline()
-    #for tweet in public_tweets:
-        #user_tweets.append(tweet.text)
-    user_tweets = [tweet.text for tweet in public_tweets]
-        
-    user = api.get_user('twitter')
-    user_screen_name = user.screen_name
-    user_followers_count = user.followers_count
-    #for friend in user.friends():
-       #print(friend.screen_name)
-    user_friends_screen_name = [friend.screen_name for friend in user.friends()]
-    
-    return 
-
-def https_python_server():
-    import http.server
-    import socketserver
-
-    PORT = 8000
-
-    Handler = http.server.SimpleHTTPRequestHandler
-
-    with socketserver.TCPServer(("", PORT), Handler) as httpd:
-        print("serving at port", PORT)
-        httpd.serve_forever()
-       
-    #to invoke server-run command: python -m http.server 8000
-
 
 
 if __name__ == '__main__':
     # if ('train' in sys.argv):
+    predictor = configuration()
     train_pipeline()
+    inference_pipeline()
     # else:
     #     inference_pipeline()
 

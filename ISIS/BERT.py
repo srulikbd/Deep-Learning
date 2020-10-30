@@ -25,10 +25,10 @@ def configuration():
     file_name = training_path.split("\\")[-1][:-5]
     test_path = r'C:\Users\user\Google Drive\סאיקאן\Projects\Shivat Zion\Arabic\Test\ronen-test-22-10-20-ordered.xlsx'
     save_path = r'C:\Users\user\srulik\Heavy Files\Shivat_Zion_Models\{}\{}'.format(language, file_name)
-    test_size = 0.1
+    test_size = 0.2
     threshold = 0.6
     global epochs
-    epochs = 4
+    epochs = 1
     return training_path, save_path, test_path, test_size, threshold
 
 training_path, save_path, test_path, test_size, threshold = configuration()
@@ -187,16 +187,17 @@ def standard_classification_pipeline(df):
     # class_names = list(set(class_names))
     # class_names.sort()
     t = text.Transformer(MODEL_NAME, maxlen=50)#, class_names=class_names)
-    print(t.get_classes())
+
     # classes = t.get_classes()
     # classes = [str(cls) for cls in classes]
     # class_weight = class_weights(class_names, df)
     trn = t.preprocess_train(x_train, y_train)
     val = t.preprocess_test(x_val, y_val)
     model = t.get_classifier()
+    print(t.get_classes())
     learner = ktrain.get_learner(model, train_data=trn, val_data=val, batch_size=8)
     # learner.fit_onecycle(5e-5, epochs=epochs, class_weight=class_weight)
-    # learner.fit_onecycle(5e-5, epochs=epochs)
+    learner.fit_onecycle(5e-5, epochs=epochs)
     # predictor = ktrain.load_predictor(r'C:\Users\user\srulik\Heavy Files\Shivat_Zion_Models\Arabic\antisemite training 3-new as doubled-no legitimate critics')
 
     # print('train number of class 1: ' + str(y_train.sum()))
@@ -207,14 +208,15 @@ def standard_classification_pipeline(df):
 
     # print_results()
 
-    # predictor = ktrain.get_predictor(learner.model, preproc=t)
-    predictor.save(save_path)
+    predictor = ktrain.get_predictor(learner.model, preproc=t)
+    # predictor.save(save_path)
 
 
     print('training classification report:')
-    classification_report_print(x_train, y_train, 'training', class_names, predictor, labels_dic_names, t)
-    print('\nvalidation classification report:')
-    classification_report_print(x_val, y_val, 'validation', class_names, predictor, labels_dic_names, t)
+    learner.validate()
+    # classification_report_print(x_train, y_train, 'training', class_names, predictor, labels_dic_names, t)
+    # print('\nvalidation classification report:')
+    # classification_report_print(x_val, y_val, 'validation', class_names, predictor, labels_dic_names, t)
     # print('\ntest classification report:')
     # classification_report_print(x_test, y_test, 'test', class_names, predictor, labels_dic_names, t)
 
