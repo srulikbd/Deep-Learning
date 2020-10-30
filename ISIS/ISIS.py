@@ -18,9 +18,10 @@ def configuration():
 def load_data():
     isis_data = pd.read_excel(r'.\tweets_isis_all.xlsx')
     random_data = pd.read_excel(r'.\tweets_random_all.xlsx')
-    tweets_only_labeled = pd.read_excel(r'.\tweets_only_labeled_small_sample.xlsx')
-    tweets_only_labeled = pd.read_excel(r'.\tweets_labeled_ISIS_keyword.xlsx')
-    return tweets_only_labeled, isis_data, random_data
+    tweets_only_labeled = pd.read_excel(r'.\tweets_only_labeled_very_small_sample.xlsx')
+    # tweets_only_labeled = pd.read_excel(r'.\tweets_labeled_ISIS_keyword.xlsx')
+    users_labeled = pd.read_excel(r'.\user_labeled.xlsx')
+    return tweets_only_labeled, isis_data, random_data, users_labeled
 
 def aggragate_user_tweets(users_name, tweets): # the data is already orderd by username in the excel file
     users_tweets = []
@@ -97,14 +98,14 @@ def predict():
 
 
 def train_pipeline():
-    tweets_only_labeled, isis_data, random_data = load_data()
-    standard_classification_pipeline(tweets_only_labeled)
+    tweets_only_labeled, isis_data, random_data, users_labeled = load_data()
+    predictor = standard_classification_pipeline(tweets_only_labeled)
     users_feature_mat=[]
-    users_names = isis_data['username'].tolist()
+    users_names = users_labeled['username']
     users_tweets = aggragate_user_tweets(users_names, isis_data['tweets'].tolist())
-    predict_test_threshold(tweets_only_labeled, predictor)
+    text_predict = predict_test_threshold(tweets_only_labeled['tweet'].tolist(), predictor)
     for i in range(len(users_names)):
-        user_feature_vector = build_user_feature_matrix()
+        user_feature_vector = build_user_feature_matrix(text_predict)
         users_feature_mat.append(user_feature_vector)
 
     train_classifiers(users_feature_mat, users_labels)
@@ -117,7 +118,7 @@ def inference_pipeline():
 
 if __name__ == '__main__':
     # if ('train' in sys.argv):
-    predictor = configuration()
+    # predictor = configuration()
     train_pipeline()
     inference_pipeline()
     # else:

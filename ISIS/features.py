@@ -36,11 +36,11 @@ def mention_ISIS_user(ISIS_users_dict, mentions, num_tweets):
     return flag, cou, cou/num_tweets
 
 
-def build_user_feature_matrix(tweets):
+def build_user_feature_matrix(tweets, tweet_predict_prob, threshold):
     user_feature_matrix=[]
-    tweet_prob = predictor.predict
 
-    user_feature_matrix.append(num_isis_tweets_threshold_norm(tweets, tweets_prob, threshold))
+
+    user_feature_matrix.append(num_isis_tweets_threshold_norm(tweets, tweets_predict_prob, threshold))
     # user_feature_matrix.append(location_in_ISIS_loc())
     # user_feature_matrix.append(max_day_of_week_tweets())
     # user_feature_matrix.append(description_in_ISIS_data())

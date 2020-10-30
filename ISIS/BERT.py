@@ -24,7 +24,7 @@ def configuration():
 
     file_name = training_path.split("\\")[-1][:-5]
     test_path = r'C:\Users\user\Google Drive\סאיקאן\Projects\Shivat Zion\Arabic\Test\ronen-test-22-10-20-ordered.xlsx'
-    save_path = r'C:\Users\user\srulik\Heavy Files\Shivat_Zion_Models\{}\{}'.format(language, file_name)
+    save_path = r'.\Models'
     test_size = 0.2
     threshold = 0.6
     global epochs
@@ -58,11 +58,11 @@ def clean_text(text):
 def predict_test_threshold(text, predictor):
     text_predict = [predictor.predict(text)][0]
     text_predict_prob = np.max(predictor.predict_proba(text), axis=1)
-    print(np.max(predictor.predict_proba(text), axis=1))
-    for i in range(len(text_predict)):
-        if (str(text_predict[i]) != '0.0'):
-            if (text_predict_prob[i] < threshold):
-                text_predict[i] = '0.0'
+    # print(np.max(predictor.predict_proba(text), axis=1))
+    # for i in range(len(text_predict)):
+    #     if (str(text_predict[i]) != '0.0'):
+    #         if (text_predict_prob[i] < threshold):
+    #             text_predict[i] = '0.0'
     text_predict = [str(y) for y in text_predict]
     # text_predict_prob = np.max(predictor.predict_proba(text), axis=1)
 
@@ -135,7 +135,7 @@ def standard_classification_pipeline(df):
     # df = df_concat
 
     # df_sampled = training_sampling(df, df['label'].drop_duplicates().tolist(), [250,250,250,250,250,250,250,250,250,250,250,250,250,250])
-    df = df[df['label'] != 'nan']
+    # df = df[df['label'] != 'nan']
     # counter(df)
     # df_sampled = df
     # df_sampled = df
@@ -197,8 +197,8 @@ def standard_classification_pipeline(df):
     print(t.get_classes())
     learner = ktrain.get_learner(model, train_data=trn, val_data=val, batch_size=8)
     # learner.fit_onecycle(5e-5, epochs=epochs, class_weight=class_weight)
-    learner.fit_onecycle(5e-5, epochs=epochs)
-    # predictor = ktrain.load_predictor(r'C:\Users\user\srulik\Heavy Files\Shivat_Zion_Models\Arabic\antisemite training 3-new as doubled-no legitimate critics')
+    # learner.fit_onecycle(5e-5, epochs=epochs)
+    predictor = ktrain.load_predictor(r'.\Models')
 
     # print('train number of class 1: ' + str(y_train.sum()))
     # print('train number of class 0: ' + str(len(y_train)-y_train.sum()))
@@ -208,12 +208,13 @@ def standard_classification_pipeline(df):
 
     # print_results()
 
-    predictor = ktrain.get_predictor(learner.model, preproc=t)
+    # predictor = ktrain.get_predictor(learner.model, preproc=t)
     # predictor.save(save_path)
 
 
-    print('training classification report:')
-    learner.validate()
+    # print('training classification report:')
+    # learner.validate()
+    return predictor
     # classification_report_print(x_train, y_train, 'training', class_names, predictor, labels_dic_names, t)
     # print('\nvalidation classification report:')
     # classification_report_print(x_val, y_val, 'validation', class_names, predictor, labels_dic_names, t)
